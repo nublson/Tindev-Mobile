@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
 	KeyboardAvoidingView,
 	StyleSheet,
@@ -16,28 +16,30 @@ import api from '../services/api'
 import logo from '../assets/logo.png'
 
 const Login = ({ navigation }) => {
+	const [user, setUser] = useState('')
+
 	useEffect(() => {
-		AsyncStorage.getItem('loggedDev').then(dev => {
-			if (dev) {
-				navigation.navigate('Main', { dev })
+		AsyncStorage.getItem('user').then(user => {
+			if (user) {
+				navigation.navigate('Main', { user })
 			}
 		})
 	}, [])
 
 	return (
 		<Formik
-			initialValues={{ username: '' }}
-			onSubmit={async ({ username }, actions) => {
+			initialValues={{ username: user }}
+			onSubmit={async ({ username }) => {
 				const response = await api.post('/devs', { username })
 
 				const { _id } = response.data
 
-				await AsyncStorage.setItem('loggedDev', _id)
+				await AsyncStorage.setItem('user', _id)
 
-				navigation.navigate('Main', { _id })
+				navigation.navigate('Main', { user: _id })
 			}}
 		>
-			{({ handleChange, handleSubmit, values }) => (
+			{({ handleSubmit, values }) => (
 				<KeyboardAvoidingView
 					behavior='padding'
 					enabled={Platform.OS === 'ios'}
@@ -51,8 +53,8 @@ const Login = ({ navigation }) => {
 						placeholder='Your Github username'
 						autoCapitalize='none'
 						placeholderTextColor='#999'
-						onChangeText={handleChange('username')}
-						value={values.username}
+						onChangeText={setUser}
+						value={(values.username = user)}
 						style={styles.input}
 					/>
 					<TouchableOpacity
