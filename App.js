@@ -1,24 +1,15 @@
 import React from 'react'
-import { Text, View, StyleSheet } from 'react-native'
+import { StatusBar } from 'react-native'
+
+import Login from './src/pages/Login'
 
 const App = () => {
 	return (
-		<View style={styles.container}>
-			<Text style={styles.text}>Hello World</Text>
-		</View>
+		<>
+			<StatusBar barStyle='dark-content' />
+			<Login />
+		</>
 	)
 }
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center'
-	},
-	text: {
-		fontWeight: 'bold',
-		fontSize: 20
-	}
-})
 
 export default App
