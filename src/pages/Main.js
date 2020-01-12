@@ -1,85 +1,118 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
 	SafeAreaView,
 	Image,
 	StyleSheet,
 	Text,
 	TouchableOpacity,
-	View
+	View,
+	AsyncStorage
 } from 'react-native'
+
+import api from '../services/api'
 
 import logo from '../assets/logo.png'
 import like from '../assets/like.png'
 import dislike from '../assets/dislike.png'
 
-const Main = () => {
+const Main = ({ navigation }) => {
+	const id = navigation.getParam('user')
+	const [devs, setDevs] = useState([])
+
+	useEffect(() => {
+		async function loadUsers() {
+			const response = await api.get('/devs', {
+				headers: {
+					user: id
+				}
+			})
+
+			setDevs(response.data)
+		}
+
+		loadUsers()
+	}, [id])
+
+	async function handleLike() {
+		const [user, ...rest] = devs
+
+		await api.post(`devs/${user._id}/likes`, null, {
+			headers: {
+				user: id
+			}
+		})
+
+		setDevs(rest)
+	}
+
+	async function handleDislike() {
+		const [user, ...rest] = devs
+
+		await api.post(`devs/${user._id}/dislikes`, null, {
+			headers: {
+				user: id
+			}
+		})
+
+		setDevs(rest)
+	}
+
+	async function handleLogout() {
+		await AsyncStorage.clear()
+
+		navigation.navigate('Login')
+	}
+
 	return (
 		<SafeAreaView style={styles.container}>
-			<Image style={styles.logo} source={logo} />
+			<TouchableOpacity onPress={handleLogout}>
+				<Image style={styles.logo} source={logo} />
+			</TouchableOpacity>
 
 			<View style={styles.cardsContainer}>
-				<View style={[styles.card, { zIndex: 3 }]}>
-					<Image
-						style={styles.avatar}
-						source={{
-							uri:
-								'https://avatars1.githubusercontent.com/u/46088089?v=4'
-						}}
-					/>
-					<View style={styles.footer}>
-						<Text style={styles.username}>Nubelson Fernandes</Text>
-						<Text style={styles.bio} numberOfLines={3}>
-							A 22 years old self-taugth Full-Stack Developer with
-							Node and React from Angola, currently living in
-							Portugal.
-						</Text>
-					</View>
-				</View>
-
-				<View style={[styles.card, { zIndex: 2 }]}>
-					<Image
-						style={styles.avatar}
-						source={{
-							uri:
-								'https://avatars1.githubusercontent.com/u/46088089?v=4'
-						}}
-					/>
-					<View style={styles.footer}>
-						<Text style={styles.username}>Nubelson Fernandes</Text>
-						<Text style={styles.bio} numberOfLines={3}>
-							A 22 years old self-taugth Full-Stack Developer with
-							Node and React from Angola, currently living in
-							Portugal.
-						</Text>
-					</View>
-				</View>
-
-				<View style={[styles.card, { zIndex: 1 }]}>
-					<Image
-						style={styles.avatar}
-						source={{
-							uri:
-								'https://avatars1.githubusercontent.com/u/46088089?v=4'
-						}}
-					/>
-					<View style={styles.footer}>
-						<Text style={styles.username}>Nubelson Fernandes</Text>
-						<Text style={styles.bio} numberOfLines={3}>
-							A 22 years old self-taugth Full-Stack Developer with
-							Node and React from Angola, currently living in
-							Portugal.
-						</Text>
-					</View>
-				</View>
+				{devs.length === 0 ? (
+					<Text style={styles.empty}> Empty! </Text>
+				) : (
+					devs.map((dev, index) => (
+						<View
+							key={dev._id}
+							style={[
+								styles.card,
+								{ zIndex: devs.length - index }
+							]}
+						>
+							<Image
+								style={styles.avatar}
+								source={{
+									uri: dev.avatar
+								}}
+							/>
+							<View style={styles.footer}>
+								<Text style={styles.username}>{dev.name}</Text>
+								<Text style={styles.bio} numberOfLines={3}>
+									{dev.bio}
+								</Text>
+							</View>
+						</View>
+					))
+				)}
 			</View>
-			<View style={styles.buttonsContainer}>
-				<TouchableOpacity style={styles.button}>
-					<Image source={dislike} />
-				</TouchableOpacity>
-				<TouchableOpacity style={styles.button}>
-					<Image source={like} />
-				</TouchableOpacity>
-			</View>
+			{devs.length > 0 && (
+				<View style={styles.buttonsContainer}>
+					<TouchableOpacity
+						style={styles.button}
+						onPress={handleDislike}
+					>
+						<Image source={dislike} />
+					</TouchableOpacity>
+					<TouchableOpacity
+						style={styles.button}
+						onPress={handleLike}
+					>
+						<Image source={like} />
+					</TouchableOpacity>
+				</View>
+			)}
 		</SafeAreaView>
 	)
 }
@@ -93,6 +126,12 @@ const styles = StyleSheet.create({
 	},
 	logo: {
 		marginTop: 30
+	},
+	empty: {
+		alignSelf: 'center',
+		color: '#999',
+		fontSize: 24,
+		fontWeight: 'bold'
 	},
 	cardsContainer: {
 		flex: 1,
