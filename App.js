@@ -1,13 +1,13 @@
 import React from 'react'
 import { StatusBar } from 'react-native'
 
-import Login from './src/pages/Login'
+import Routes from './src/routes'
 
 const App = () => {
 	return (
 		<>
 			<StatusBar barStyle='dark-content' />
-			<Login />
+			<Routes />
 		</>
 	)
 }
