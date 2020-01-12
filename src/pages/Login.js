@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
 	KeyboardAvoidingView,
 	StyleSheet,
@@ -6,46 +6,66 @@ import {
 	TextInput,
 	TouchableOpacity,
 	Text,
-	Platform
+	Platform,
+	AsyncStorage
 } from 'react-native'
 import { Formik } from 'formik'
 
+import api from '../services/api'
+
 import logo from '../assets/logo.png'
 
-const Login = () => (
-	<Formik
-		initialValues={{ username: '' }}
-		onSubmit={({ username }, actions) => {
-			console.log(username)
+const Login = ({ navigation }) => {
+	useEffect(() => {
+		AsyncStorage.getItem('loggedDev').then(dev => {
+			if (dev) {
+				navigation.navigate('Main', { dev })
+			}
+		})
+	}, [])
 
-			actions.resetForm()
-		}}
-	>
-		{({ handleChange, handleSubmit, values }) => (
-			<KeyboardAvoidingView
-				behavior='padding'
-				enabled={Platform.OS === 'ios'}
-				style={styles.container}
-			>
-				<Image source={logo} />
+	return (
+		<Formik
+			initialValues={{ username: '' }}
+			onSubmit={async ({ username }, actions) => {
+				const response = await api.post('/devs', { username })
 
-				<TextInput
-					type='text'
-					autoCorrect={false}
-					placeholder='Your Github username'
-					autoCapitalize='none'
-					placeholderTextColor='#999'
-					onChangeText={handleChange('username')}
-					value={values.username}
-					style={styles.input}
-				/>
-				<TouchableOpacity onPress={handleSubmit} style={styles.button}>
-					<Text style={styles.buttonText}>Login</Text>
-				</TouchableOpacity>
-			</KeyboardAvoidingView>
-		)}
-	</Formik>
-)
+				const { _id } = response.data
+
+				await AsyncStorage.setItem('loggedDev', _id)
+
+				navigation.navigate('Main', { _id })
+			}}
+		>
+			{({ handleChange, handleSubmit, values }) => (
+				<KeyboardAvoidingView
+					behavior='padding'
+					enabled={Platform.OS === 'ios'}
+					style={styles.container}
+				>
+					<Image source={logo} />
+
+					<TextInput
+						type='text'
+						autoCorrect={false}
+						placeholder='Your Github username'
+						autoCapitalize='none'
+						placeholderTextColor='#999'
+						onChangeText={handleChange('username')}
+						value={values.username}
+						style={styles.input}
+					/>
+					<TouchableOpacity
+						onPress={handleSubmit}
+						style={styles.button}
+					>
+						<Text style={styles.buttonText}>Login</Text>
+					</TouchableOpacity>
+				</KeyboardAvoidingView>
+			)}
+		</Formik>
+	)
+}
 
 const styles = StyleSheet.create({
 	container: {
