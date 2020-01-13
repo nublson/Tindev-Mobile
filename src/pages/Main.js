@@ -35,7 +35,7 @@ const Main = ({ navigation }) => {
 		}
 
 		loadUsers()
-	}, [devs, id])
+	}, [id])
 
 	useEffect(() => {
 		const socket = io(BACKEND_URL, {
@@ -129,7 +129,7 @@ const Main = ({ navigation }) => {
 			)}
 
 			{matchDev && (
-				<View style={styles.matchContainer}>
+				<View style={[styles.matchContainer, { zIndex: 10 }]}>
 					<Image style={styles.matchImage} source={itsamatch} />
 
 					<Image

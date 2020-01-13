@@ -29,13 +29,14 @@ const Login = ({ navigation }) => {
 	return (
 		<Formik
 			initialValues={{ username: user }}
-			onSubmit={async ({ username }) => {
+			onSubmit={async ({ username }, actions) => {
 				const response = await api.post('/devs', { username })
 
 				const { _id } = response.data
 
 				await AsyncStorage.setItem('user', _id)
 
+				actions.resetForm()
 				navigation.navigate('Main', { user: _id })
 			}}
 		>
