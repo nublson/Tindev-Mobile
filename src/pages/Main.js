@@ -8,16 +8,20 @@ import {
 	View,
 	AsyncStorage
 } from 'react-native'
+import io from 'socket.io-client'
 
+import { BACKEND_URL } from 'react-native-dotenv'
 import api from '../services/api'
 
 import logo from '../assets/logo.png'
 import like from '../assets/like.png'
 import dislike from '../assets/dislike.png'
+import itsamatch from '../assets/itsamatch.png'
 
 const Main = ({ navigation }) => {
 	const id = navigation.getParam('user')
 	const [devs, setDevs] = useState([])
+	const [matchDev, setMatchDev] = useState(null)
 
 	useEffect(() => {
 		async function loadUsers() {
@@ -31,6 +35,16 @@ const Main = ({ navigation }) => {
 		}
 
 		loadUsers()
+	}, [devs, id])
+
+	useEffect(() => {
+		const socket = io(BACKEND_URL, {
+			query: { user: id }
+		})
+
+		socket.on('match', dev => {
+			setMatchDev(dev)
+		})
 	}, [id])
 
 	async function handleLike() {
@@ -113,6 +127,28 @@ const Main = ({ navigation }) => {
 					</TouchableOpacity>
 				</View>
 			)}
+
+			{matchDev && (
+				<View style={styles.matchContainer}>
+					<Image style={styles.matchImage} source={itsamatch} />
+
+					<Image
+						style={styles.matchAvatar}
+						source={{
+							uri: matchDev.avatar
+						}}
+					/>
+					<Text style={styles.matchName}> {matchDev.name}</Text>
+					<Text style={styles.matchBio}>{matchDev.bio}</Text>
+
+					<TouchableOpacity
+						onPress={() => setMatchDev(null)}
+						style={styles.matchButton}
+					>
+						<Text style={styles.closeMatch}>CLOSE</Text>
+					</TouchableOpacity>
+				</View>
+			)}
 		</SafeAreaView>
 	)
 }
@@ -190,6 +226,44 @@ const styles = StyleSheet.create({
 			width: 0,
 			height: 2
 		}
+	},
+	matchContainer: {
+		...StyleSheet.absoluteFillObject,
+		backgroundColor: 'rgba(0,0,0,.8)',
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
+	matchImage: {
+		height: 60,
+		resizeMode: 'contain'
+	},
+	matchAvatar: {
+		width: 160,
+		height: 160,
+		borderRadius: 80,
+		borderWidth: 5,
+		borderColor: '#fff',
+		marginVertical: 30
+	},
+	matchName: {
+		fontSize: 26,
+		fontWeight: 'bold',
+		color: '#fff'
+	},
+	matchBio: {
+		marginTop: 10,
+		fontSize: 16,
+		color: 'rgba(255, 255, 255, .8)',
+		lineHeight: 24,
+		textAlign: 'center',
+		paddingHorizontal: 30
+	},
+	closeMatch: {
+		fontSize: 16,
+		color: 'rgba(255, 255, 255, .8)',
+		textAlign: 'center',
+		marginTop: 30,
+		fontWeight: 'bold'
 	}
 })
 
