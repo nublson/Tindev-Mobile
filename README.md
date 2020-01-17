@@ -10,21 +10,11 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-You will need the [backend](https://github.com/nubelsondev/tindev-backend) to be running so that you can connect both sides of the Application.
-
-**Note: In your Axios set up to connect the mobile app to the backend, you need to change localhost to LAN URL provided by Expo Development Tool.**
+You will need the [backend](https://github.com/nubelsondev/tindev-backend) to be running so that you can connect both sides of the Application putting the `BACKEND_URL` in the `.env` file.
 
 ```javascript
-/*
-Expo developer Tool
-$ http://localhost:19002/
-
-Connection LAN url
-$ exp://192.168.1.9:19000 => change Axios baseUrl localhost by 192.168.1.9
-*/
+BACKEND_URL = urlBackend
 ```
-
-![Expo Development Tool](./devTool.png)
 
 ### Installation
 
