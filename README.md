@@ -1,5 +1,7 @@
 # Tindev (Mobile w/ React Native)
 
+Web version [here](https://github.com/nubelsondev/Tindev).
+
 ![Tindev Preview](./thumbnail.png)
 
 This is the frontend mobile version of Tindev. Allows Developers to login by typing in the github username. This redirects them to the application's homepage where they can see all developers that the user has not yet liked or dislike.
